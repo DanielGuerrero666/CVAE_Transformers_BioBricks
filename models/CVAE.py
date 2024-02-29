@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from models.Transformer import T1, T2
 
@@ -10,4 +11,5 @@ class CVAE(nn.Module):
     def forward(self, x):
         z = self.encoder(x)
         recon_x = self.decoder(z)
-        return recon_x
+        recon_x_sigmoid = torch.sigmoid(recon_x)
+        return recon_x_sigmoid
