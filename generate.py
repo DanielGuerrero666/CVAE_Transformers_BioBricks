@@ -5,7 +5,7 @@ from models.CVAE import CVAE
 # Define el dispositivo a utilizar (GPU si está disponible, de lo contrario CPU)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Ruta donde has guardado tu modelo entrenado
+# Ruta del modelo
 model_path = "data/cvae_mnist.pth"
 
 # Carga el modelo entrenado

@@ -10,5 +10,7 @@ class CVAE(nn.Module):
 
     def forward(self, x):
         z = self.encoder(x)
-        recon_x = self.decoder(z)
+        # Obtener el output del encoder para usarlo como memory en el decoder
+        memory = z.unsqueeze(0).expand(self.decoder.transformer.num_layers, -1, -1)
+        recon_x = self.decoder(x, memory)
         return recon_x, z.mean(), z.var()
