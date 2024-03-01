@@ -23,45 +23,48 @@ num_epochs = 10
 # Inicializa el modelo
 model = CVAE(input_dim, latent_dim, hidden_dim, output_dim).to(device)
 
-# Se usara la funcion de perdida BCE, ya que MNIST contiene imagenes en blanco y negro
-criterion = nn.BCELoss()
+# Define la función de pérdida (MSELoss para la reconstrucción)
+reconstruction_loss = nn.MSELoss()
 
-# Funcion de activacion sigmoide, BCE recibe entradas binarias, esta funcion adapta la salida del CVAE
-sigmoid = nn.Sigmoid()
+# Define la función de pérdida de KL Divergence
+def kl_divergence(mu, logvar):
+    # Calcula la pérdida de KL para cada muestra en el batch
+    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    return kl_loss
 
 # Define el optimizador (Adam)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # Función de entrenamiento
-def train(model, train_loader, optimizer, criterion):
+def train(model, train_loader, optimizer, reconstruction_loss):
     model.train()
     running_loss = 0.0
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.view(-1, 784).to(device)  # Aplana las imágenes
         optimizer.zero_grad()
-        recon_batch = model(data)
-        loss = criterion(recon_batch, data)  # Calcula la pérdida
+        recon_batch, mu, logvar = model(data)
+        loss = reconstruction_loss(recon_batch, data) + kl_divergence(mu, logvar)  # Calcula la pérdida total
         loss.backward()
         running_loss += loss.item()
         optimizer.step()
     return running_loss / len(train_loader.dataset)
 
 # Función de evaluación
-def test(model, test_loader, criterion):
+def test(model, test_loader, reconstruction_loss):
     model.eval()
     test_loss = 0.0
     with torch.no_grad():
         for data, _ in test_loader:
             data = data.view(-1, 784).to(device)  # Aplana las imágenes
-            recon_batch = model(data)
-            test_loss += criterion(recon_batch, data).item()  # Suma la pérdida de reconstrucción
+            recon_batch, mu, logvar = model(data)
+            test_loss += (reconstruction_loss(recon_batch, data) + kl_divergence(mu, logvar)).item()  # Suma la pérdida total
     test_loss /= len(test_loader.dataset)
     return test_loss
 
 # Entrenamiento del modelo
 for epoch in range(1, num_epochs + 1):
-    train_loss = train(model, train_loader, optimizer, criterion)
-    test_loss = test(model, test_loader, criterion)
+    train_loss = train(model, train_loader, optimizer, reconstruction_loss)
+    test_loss = test(model, test_loader, reconstruction_loss)
     train_losses.append(train_loss)
     test_losses.append(test_loss)
     print(f"Epoch {epoch}: Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")

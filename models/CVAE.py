@@ -11,5 +11,4 @@ class CVAE(nn.Module):
     def forward(self, x):
         z = self.encoder(x)
         recon_x = self.decoder(z)
-        recon_x_sigmoid = torch.sigmoid(recon_x)
-        return recon_x_sigmoid
+        return recon_x, z.mean(), z.var()
