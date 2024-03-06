@@ -16,7 +16,7 @@ test_losses = []
 input_dim = 784  # Dimensión de entrada de las imágenes MNIST (28x28 = 784)
 latent_dim = 20  # Dimensión del espacio latente
 output_dim = input_dim  # Dimensión de salida (igual a la dimensión de entrada)
-hidden_dim = 128  # Dimensión de las capas ocultas (Neuronas en cada capa oculta)
+hidden_dim = 128  # Dimensión de las capas ocultas, se refiere tambien a la dimfeeedforward en los transformers
 learning_rate = 0.001 # Tasa de aprendizaje
 num_epochs = 10
 

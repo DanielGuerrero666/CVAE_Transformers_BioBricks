@@ -12,5 +12,6 @@ class CVAE(nn.Module):
         z = self.encoder(x)
         # Obtener el output del encoder para usarlo como memory en el decoder
         memory = z.unsqueeze(0).expand(self.decoder.transformer.num_layers, -1, -1)
-        recon_x = self.decoder(x, memory)
+        # Pasa z como entrada al decodificador en lugar de x
+        recon_x = self.decoder(z, memory)
         return recon_x, z.mean(), z.var()
