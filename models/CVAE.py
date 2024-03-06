@@ -9,9 +9,12 @@ class CVAE(nn.Module):
         self.decoder = T2(latent_dim, hidden_dim, output_dim)
 
     def forward(self, x):
-        z = self.encoder(x)
-        # Obtener el output del encoder para usarlo como memory en el decoder
-        memory = z.unsqueeze(0).expand(self.decoder.transformer.num_layers, -1, -1)
-        # Pasa z como entrada al decodificador en lugar de x
-        recon_x = self.decoder(z, memory)
-        return recon_x, z.mean(), z.var()
+        mu, logvar = self.encoder(x)
+        z = self._reparameterize(mu, logvar)
+        recon_x = self.decoder(z,z)
+        return recon_x, mu, logvar
+
+    def _reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
