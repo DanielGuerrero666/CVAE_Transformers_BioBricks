@@ -22,7 +22,7 @@ with torch.no_grad():
         # Genera muestras aleatorias en el espacio latente
         latent_sample = torch.randn(1, 20).to(device)
         # Decodifica las muestras latentes en imágenes
-        generated_image = model.decoder(latent_sample)
+        generated_image = model.decoder(latent_sample, latent_sample)  # Pasar la misma entrada como memoria
         # Guarda las imágenes generadas
         save_image(generated_image.view(1, 1, 28, 28), f"images/generated_image_{i+1}.png")
 

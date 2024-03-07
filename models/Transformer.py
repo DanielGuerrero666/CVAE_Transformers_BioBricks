@@ -18,7 +18,9 @@ class T2(nn.Module):
     def __init__(self, latent_dim, hidden_dim, output_dim, layers=6, heads=10, dropout=0.1):
         super(T2, self).__init__()
         self.transformer = nn.TransformerDecoder(nn.TransformerDecoderLayer(latent_dim, heads, hidden_dim, dropout), num_layers=layers)
+        self.fc = nn.Linear(latent_dim, output_dim)
     
     def forward(self, x, memory):
         x = self.transformer(x, memory)
+        x = self.fc(x)
         return x
